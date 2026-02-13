@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apk Nevers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            color: white;
+            background: #0a0a0a;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #entry-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 1);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #00dbde;
+            font-weight: bold;
+            letter-spacing: 5px;
+            transition: 0.8s;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            max-width: 450px; 
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            animation: containerFade 1.2s ease-out;
+        }
+
+        @keyframes containerFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .video-box {
+            width: 100%; 
+            max-width: 380px;
+            margin: 0 auto 25px;
+            position: relative;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(45deg, #00dbde, #fc00ff);
+            box-shadow: 0 0 25px rgba(0, 219, 222, 0.2);
+            aspect-ratio: 16 / 9; 
+        }
+
+        .video-inner {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-inner video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 900;
+        }
+
+        p.subtitle {
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 14px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.4s;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary { border-left: 4px solid #00dbde; }
+        .btn-dev { border-left: 4px solid #fc00ff; }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to { transform: scale(4); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="entry-overlay" onclick="startApp()">
+        MASUK
+    </div>
+
+    <audio id="bg-audio" loop>
+        <source src="https://files.catbox.moe/ar8vfu.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="background-canvas"></canvas>
+    
+    <div class="main-content">
+        <div class="container">
+            <div class="video-box">
+                <div class="video-inner">
+                    <video id="profile-video" loop muted playsinline>
+                        <source src="https://files.catbox.moe/23sy1m.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            
+            <h1>Apk Nevers</h1>
+            <p class="subtitle">FIXED BY agaas C7bx4</p>
+            
+            <div class="buttons-container">
+                <a href="https://ditzzzgamonnn123-create.github.io/Bt/" class="btn btn-primary">Beranda</a>
+                <a href="https://sociabuzz.com/agaas_reall" class="btn btn-dev">Developer</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('bg-audio');
+        const overlay = document.getElementById('entry-overlay');
+        const profileVideo = document.getElementById('profile-video');
+
+        function startApp() {
+            audio.play().catch(() => {});
+            profileVideo.play().catch(() => {});
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 800);
+        }
+
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const connectionDistance = 150;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            const count = Math.floor((canvas.width * canvas.height) / 9500);
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speedX: (Math.random() - 0.5) * 0.7,
+                    speedY: (Math.random() - 0.5) * 0.7
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                ctx.fillStyle = 'rgba(0, 219, 222, 0.5)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                for(let j=i+1; j<particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < connectionDistance) {
+                        ctx.strokeStyle = `rgba(252, 0, 255, ${0.5 - dist/connectionDistance/2})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+                if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+            }
+            requestAnimationFrame(draw);
+        }
+
+        init();
+        draw();
+        window.onresize = init;
+
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                let rect = this.getBoundingClientRect();
+                let x = e.clientX - rect.left;
+                let y = e.clientY - rect.top;
+                let ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body>
+</html>
